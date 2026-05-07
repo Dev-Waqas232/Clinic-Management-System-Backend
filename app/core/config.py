@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     DB_URL: str
     PORT: int = 8000
     HOST: str = "0.0.0.0"
+    JWT_ACCESS_SECRET: str
+    JWT_REFRESH_SECRET: str
 
 
 settings = Settings()  # type: ignore
