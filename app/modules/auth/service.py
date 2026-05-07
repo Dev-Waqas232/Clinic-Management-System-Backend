@@ -64,11 +64,11 @@ async def login_user(body: LoginBody, db: AsyncSession):
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Credentials"
         )
 
-    #  if not auth.is_email_verified:
-    #     raise HTTPException(
-    #        status_code=status.HTTP_403_FORBIDDEN,
-    #       detail="Please confirm your email first to login to the system",
-    #  )
+    if not auth.is_email_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Please confirm your email first to login to the system",
+        )
 
     access_exp = datetime.now(timezone.utc) + timedelta(days=1)
     refresh_exp = datetime.now(timezone.utc) + timedelta(days=7)
