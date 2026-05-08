@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from fastapi import HTTPException, status
+from fastapi import HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from passlib.hash import bcrypt
@@ -46,7 +46,7 @@ async def register_user(body: RegisterBody, db: AsyncSession):
     )
 
 
-async def login_user(body: LoginBody, db: AsyncSession):
+async def login_user(body: LoginBody, db: AsyncSession, response: Response):
     result = await db.execute(select(User).where(User.email == body.email))
     user = result.scalar_one_or_none()
 
@@ -92,7 +92,9 @@ async def login_user(body: LoginBody, db: AsyncSession):
         settings.JWT_REFRESH_SECRET,
     )
 
-    return LoginResponse(access_token=access_token, refresh_token=refresh_token)
+    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True)
+
+    return LoginResponse(access_token=access_token)
 
 
 def generate_token(payload: dict, secret: str) -> str:

@@ -28,4 +28,3 @@ class RegisterResponse(BaseModel):
 
 class LoginResponse(BaseModel):
     access_token: str
-    refresh_token: str
