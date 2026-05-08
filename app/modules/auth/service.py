@@ -3,8 +3,6 @@ from fastapi import HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from passlib.hash import bcrypt
-import jwt
-import secrets
 from fastapi_mail import NameEmail
 
 from .schemas import LoginBody, LoginResponse, RegisterBody, RegisterResponse
@@ -12,6 +10,8 @@ from app.modules.users.models import User
 from .models import Auth
 from app.core.config import settings
 from app.core.email import send_email
+from app.utils.generate_otp import generate_otp
+from app.utils.generate_token import generate_token
 
 
 async def register_user(body: RegisterBody, db: AsyncSession):
@@ -112,12 +112,3 @@ async def login_user(body: LoginBody, db: AsyncSession, response: Response):
     response.set_cookie(key="refresh_token", value=refresh_token, httponly=True)
 
     return LoginResponse(access_token=access_token)
-
-
-def generate_token(payload: dict, secret: str) -> str:
-    token = jwt.encode(payload, secret, algorithm="HS256")
-    return token
-
-
-def generate_otp() -> int:
-    return secrets.randbelow(900000) + 100000
