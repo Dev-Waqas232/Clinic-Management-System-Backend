@@ -4,11 +4,14 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from passlib.hash import bcrypt
 import jwt
+import secrets
+from fastapi_mail import NameEmail
 
 from .schemas import LoginBody, LoginResponse, RegisterBody, RegisterResponse
 from app.modules.users.models import User
 from .models import Auth
 from app.core.config import settings
+from app.core.email import send_email
 
 
 async def register_user(body: RegisterBody, db: AsyncSession):
@@ -33,9 +36,23 @@ async def register_user(body: RegisterBody, db: AsyncSession):
     await db.commit()
     await db.refresh(new_user)
 
-    user_auth = Auth(password_hash=password_hash, user_id=new_user.id)
+    user_otp = generate_otp()
+    user_otp_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
+
+    user_auth = Auth(
+        password_hash=password_hash,
+        user_id=new_user.id,
+        otp=user_otp,
+        otp_expires_at=user_otp_expires_at,
+    )
     db.add(user_auth)
     await db.commit()
+
+    await send_email(
+        "OTP Verification",
+        f"<p>Your OTP is: {user_otp}</p>",
+        [NameEmail(email=new_user.email, name=new_user.first_name)],
+    )
 
     return RegisterResponse(
         first_name=new_user.first_name,
@@ -100,3 +117,7 @@ async def login_user(body: LoginBody, db: AsyncSession, response: Response):
 def generate_token(payload: dict, secret: str) -> str:
     token = jwt.encode(payload, secret, algorithm="HS256")
     return token
+
+
+def generate_otp() -> int:
+    return secrets.randbelow(900000) + 100000

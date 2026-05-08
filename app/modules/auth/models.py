@@ -25,3 +25,8 @@ class Auth(Base):
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id")
     )
+
+    otp: Mapped[int | None] = mapped_column(default=None)
+    otp_expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), default=None
+    )

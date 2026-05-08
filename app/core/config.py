@@ -1,3 +1,4 @@
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -9,6 +10,10 @@ class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
     JWT_ACCESS_SECRET: str
     JWT_REFRESH_SECRET: str
+    EMAIL_HOST: str
+    EMAIL_PORT: str
+    EMAIL_USERNAME: str
+    EMAIL_PASSWORD: SecretStr
 
 
 settings = Settings()  # type: ignore
