@@ -3,13 +3,12 @@ from fastapi import HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from passlib.hash import bcrypt
-from fastapi_mail import NameEmail
 
+from app.tasks.email_tasks import email_tasks
 from .schemas import LoginBody, LoginResponse, RegisterBody, RegisterResponse
 from app.modules.users.models import User
 from .models import Auth
 from app.core.config import settings
-from app.core.email import send_email
 from app.utils.generate_otp import generate_otp
 from app.utils.generate_token import generate_token
 
@@ -48,10 +47,11 @@ async def register_user(body: RegisterBody, db: AsyncSession):
     db.add(user_auth)
     await db.commit()
 
-    await send_email(
+    email_tasks.delay(
         "OTP Verification",
         f"<p>Your OTP is: {user_otp}</p>",
-        [NameEmail(email=new_user.email, name=new_user.first_name)],
+        new_user.email,
+        new_user.first_name,
     )
 
     return RegisterResponse(
