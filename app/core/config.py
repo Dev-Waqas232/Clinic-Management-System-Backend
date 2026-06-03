@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     EMAIL_PASSWORD: SecretStr
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
+    REDIS_PASSWORD: str = ""
 
 
 settings = Settings()  # type: ignore

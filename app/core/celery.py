@@ -4,8 +4,8 @@ from .config import settings
 
 app = Celery(
     "clinic-ms",
-    broker=f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}",
-    backend=f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}",
+    broker=f"rediss://:{settings.REDIS_PASSWORD}@{settings.REDIS_HOST}:{settings.REDIS_PORT}",
+    backend=f"rediss://:{settings.REDIS_PASSWORD}@{settings.REDIS_HOST}:{settings.REDIS_PORT}",
 )
 
 app.autodiscover_tasks(["app.tasks.email_tasks"])
